@@ -6,12 +6,21 @@ const btnDown = document.querySelector('#down');
 const game = canvas.getContext('2d');
 
 let canvasSize;
-let elementsSize
+let elementsSize;
+let level = 0;
+let lives = 3;
 
 const playerPosition = {
     x: undefined,
     y: undefined,
 };
+
+const giftPosition = {
+    x: undefined,
+    y: undefined,
+};
+
+let bombPosition = [];
 
 window.addEventListener('load', setCanvasSize);
 window.addEventListener('resize', setCanvasSize);
@@ -42,9 +51,16 @@ function startGame() {
     game.font = `${elementsSize}px Verdana`;
     game.textAlign = 'end';
 
-    const mapRows = maps[0].trim().split('\n');
-    const mapRowCols = mapRows.map(row => row.trim().split(''));
+    const map = maps[level];
 
+    if(!map){
+        gameWin();
+    }
+
+    const mapRows = map.trim().split('\n');
+    const mapRowCols = mapRows.map(row => row.trim().split(''))
+    
+    bombPosition = [];
     game.clearRect(0,0,canvasSize,canvasSize);
 
     mapRowCols.forEach((row, rowI) => {
@@ -58,6 +74,14 @@ function startGame() {
                     playerPosition.x = posX;
                     playerPosition.y = posY;
                 }
+            }else if(col == 'I'){
+                giftPosition.x = posX;
+                giftPosition.y = posY;
+            }else if(col == 'X'){
+                bombPosition.push({
+                    x: posX,
+                    y: posY, 
+                });
             };
         });
     });
@@ -75,8 +99,49 @@ function startGame() {
 };
 
 function movePlayer(){
+    const giftPositionX = playerPosition.x.toFixed(2) == giftPosition.x.toFixed(2);
+    const giftPositionY = playerPosition.y.toFixed(2) == giftPosition.y.toFixed(2);
+    const isGiftCollision = giftPositionX && giftPositionY;
+
+    
+    if(isGiftCollision){
+        levelWin();
+    };
+    
+    const isBombCollision = bombPosition.find(enemy => {
+        const enemyCollisionX = enemy.x.toFixed(2) == playerPosition.x.toFixed(2);
+        const enemyCollisionY = enemy.y.toFixed(2) == playerPosition.y.toFixed(2);
+        return enemyCollisionX && enemyCollisionY;
+    });
+
+    if(isBombCollision){
+        levelLost();
+    };
+
     game.fillText(emojis['PLAYER'], playerPosition.x, playerPosition.y);
-    console.log(playerPosition)
+}
+
+function levelWin(){
+    console.log('Subiste de nivel');
+    level++;
+    startGame();
+};
+
+function gameWin(){
+    console.log('Terminaste el Juego');
+};
+
+function levelLost(){
+    lives--;
+    
+    if(lives <= 0) {
+        level = 0;
+        lives = 3;
+    }
+
+    playerPosition.x = undefined;
+    playerPosition.y = undefined;
+    startGame();
 }
 
 btnUp.addEventListener('click', moveUp);
