@@ -8,6 +8,7 @@ const spanLives = document.querySelector('#lives');
 const spanTime = document.querySelector('#time');
 const spanRecord = document.querySelector('#record');
 const pResul = document.querySelector('#resul');
+const botonReiniciar = document.querySelector('#reset')
 
 let canvasSize;
 let elementsSize;
@@ -214,6 +215,12 @@ function formatTime(ms){
     const hrStr =  `0${hr}`.slice(-2);
     return `${hrStr}:${minStr}:${segStr}:${csStr}`;
 };
+
+botonReiniciar.addEventListener('click', resetGame);
+
+function resetGame() {
+    location.reload();
+}
 
 btnUp.addEventListener('click', moveUp);
 btnLeft.addEventListener('click', moveLeft);
